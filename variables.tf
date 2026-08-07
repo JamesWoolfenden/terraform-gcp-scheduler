@@ -37,3 +37,37 @@ variable "service_account_email" {
     error_message = "var.service_account_email must not be the default Compute Engine service account"
   }
 }
+
+
+variable "region" {
+  type        = string
+  description = "Region where the Cloud Scheduler job will be created"
+  default     = "europe-west2"
+
+  validation {
+    condition     = length(trimspace(var.region)) > 0
+    error_message = "var.region must be a non-empty string"
+  }
+}
+
+variable "description" {
+  type        = string
+  description = "Human-readable description of the job's purpose, shown in the GCP console"
+  default     = null
+
+  validation {
+    condition     = var.description == null || length(trimspace(var.description)) > 0
+    error_message = "var.description must be null or a non-empty string"
+  }
+}
+
+variable "attempt_deadline" {
+  type        = string
+  description = "Deadline for job attempts, e.g. '180s'. Increase if the HTTP target (e.g. a cold-starting Cloud Run service) can take longer than the GCP default of 3 minutes to respond."
+  default     = "180s"
+
+  validation {
+    condition     = can(regex("^[0-9]+(\\.[0-9]{1,9})?s$", var.attempt_deadline))
+    error_message = "var.attempt_deadline must be a duration string like '180s'"
+  }
+}

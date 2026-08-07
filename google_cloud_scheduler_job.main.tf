@@ -1,7 +1,9 @@
 resource "google_cloud_scheduler_job" "main" {
-  name     = var.job_name
-  schedule = var.schedule
-  region   = "europe-west2"
+  name             = var.job_name
+  description      = var.description
+  schedule         = var.schedule
+  region           = var.region
+  attempt_deadline = var.attempt_deadline
 
   http_target {
     uri         = var.uri
@@ -12,4 +14,9 @@ resource "google_cloud_scheduler_job" "main" {
       audience              = var.uri
     }
   }
+
+  retry_config {
+    retry_count = 3
+  }
 }
+
