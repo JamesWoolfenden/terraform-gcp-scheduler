@@ -19,4 +19,3 @@ resource "google_cloud_scheduler_job" "main" {
     retry_count = 3
   }
 }
-
