@@ -2,7 +2,7 @@
   "findings": [
     {
       "confidence": "medium",
-      "explanation": "HLD_GCP_167 (must enforce Binary Authorization) passes because a binary_authorization block with use_default = true is present, but use_default only defers to whatever the project's default Binary Authorization policy already says. No google_binary_authorization_policy resource exists anywhere in this repo defining a non-permissive default_admission_rule (e.g. REQUIRE_ATTESTATION or ALWAYS_DENY). The comment above the block says '# Enforce Binary Authorization', which asserts an outcome that this Terraform cannot actually guarantee \u2014 if the project's default policy is the GCP-standard 'Always Allow', this block enforces nothing. A rules engine can only see the attribute is set, not what the referenced project-level policy actually does.",
+      "explanation": "HLD_GCP_167 (must enforce Binary Authorization) passes because a binary_authorization block with use_default = true is present, but use_default only defers to whatever the project's default Binary Authorization policy already says. No google_binary_authorization_policy resource exists anywhere in this repo defining a non-permissive default_admission_rule (e.g. REQUIRE_ATTESTATION or ALWAYS_DENY). The comment above the block says '# Enforce Binary Authorization', which asserts an outcome that this Terraform cannot actually guarantee — if the project's default policy is the GCP-standard 'Always Allow', this block enforces nothing. A rules engine can only see the attribute is set, not what the referenced project-level policy actually does.",
       "file": "example/examplea/module.scheduler.tf",
       "first_seen": "2026-08-07",
       "fixable": false,
@@ -19,7 +19,7 @@
     },
     {
       "confidence": "medium",
-      "explanation": "google_service_account.scheduler is used three ways at once: it's the runtime identity of google_cloud_run_v2_service.target (template.service_account), the principal granted roles/run.invoker on that same service, and the OIDC identity the scheduler module authenticates as. Each check individually passes (HLD_GCP_084: not the default Compute SA; the run.invoker grant exists), so no single deterministic rule sees the conflation. As written, the demo container needs no permissions so the blast radius is currently limited to run.invoker \u2014 but this example is the template other engineers copy: the moment the target service is given real permissions to do its job (e.g. read a bucket, call another API), anything able to obtain this same SA's OIDC token to invoke the job also inherits the runtime SA's privileges. The caller identity and the workload identity should be separate accounts.",
+      "explanation": "google_service_account.scheduler is used three ways at once: it's the runtime identity of google_cloud_run_v2_service.target (template.service_account), the principal granted roles/run.invoker on that same service, and the OIDC identity the scheduler module authenticates as. Each check individually passes (HLD_GCP_084: not the default Compute SA; the run.invoker grant exists), so no single deterministic rule sees the conflation. As written, the demo container needs no permissions so the blast radius is currently limited to run.invoker — but this example is the template other engineers copy: the moment the target service is given real permissions to do its job (e.g. read a bucket, call another API), anything able to obtain this same SA's OIDC token to invoke the job also inherits the runtime SA's privileges. The caller identity and the workload identity should be separate accounts.",
       "file": "example/examplea/module.scheduler.tf",
       "first_seen": "2026-08-07",
       "fixable": false,
@@ -39,7 +39,7 @@
     },
     {
       "confidence": "high",
-      "explanation": "example/examplea/terraform.tf:1 has a bare '# holden:ignore:HLD_TF_004' (Remote backend must be configured \u2014 HIGH severity) with no reason, and example/examplea/module.scheduler.tf:46 has a bare '# holden:ignore:HLD_TF_065' (module wraps exactly one resource) with no reason. Every other suppression in this repo (HLD_TF_026, HLD_GCP_059, HLD_GCP_126, HLD_GCP_127) documents why. A future maintainer can't tell whether these two were deliberate calls or copy-paste, and can't evaluate whether they still apply \u2014 this matters most for HLD_TF_004, since silently accepting local state on a HIGH-severity check is exactly the kind of suppression that should be justified in place.",
+      "explanation": "example/examplea/terraform.tf:1 has a bare '# holden:ignore:HLD_TF_004' (Remote backend must be configured — HIGH severity) with no reason, and example/examplea/module.scheduler.tf:46 has a bare '# holden:ignore:HLD_TF_065' (module wraps exactly one resource) with no reason. Every other suppression in this repo (HLD_TF_026, HLD_GCP_059, HLD_GCP_126, HLD_GCP_127) documents why. A future maintainer can't tell whether these two were deliberate calls or copy-paste, and can't evaluate whether they still apply — this matters most for HLD_TF_004, since silently accepting local state on a HIGH-severity check is exactly the kind of suppression that should be justified in place.",
       "file": "example/examplea/module.scheduler.tf",
       "first_seen": "2026-08-07",
       "fixable": false,
@@ -58,7 +58,7 @@
     },
     {
       "confidence": "low",
-      "explanation": "The suppression comment asserts 'per-repo WIF SA with attribute.repository scoping provides equivalent least-privilege without impersonation' \u2014 the same justification used, close to verbatim, in holden's own test fixture for this exact policy. But unlike that fixture (which defines the google_iam_workload_identity_pool_provider and google_service_account_iam_member with the scoping attribute_condition in the same file), no such resources exist anywhere in this repository. This is plausibly legitimate if the WIF pool/provider is genuinely defined in a separate bootstrap/CI repo, which is a common and reasonable pattern \u2014 but that can't be verified from this repo's Terraform alone, so confidence here is low.",
+      "explanation": "The suppression comment asserts 'per-repo WIF SA with attribute.repository scoping provides equivalent least-privilege without impersonation' — the same justification used, close to verbatim, in holden's own test fixture for this exact policy. But unlike that fixture (which defines the google_iam_workload_identity_pool_provider and google_service_account_iam_member with the scoping attribute_condition in the same file), no such resources exist anywhere in this repository. This is plausibly legitimate if the WIF pool/provider is genuinely defined in a separate bootstrap/CI repo, which is a common and reasonable pattern — but that can't be verified from this repo's Terraform alone, so confidence here is low.",
       "file": "example/examplea/provider.google.tf",
       "first_seen": "2026-08-07",
       "fixable": false,
@@ -75,8 +75,9 @@
       "title": "HLD_GCP_059 suppression claims per-repo WIF scoping that isn't visible anywhere in this repo"
     }
   ],
-  "scan_date": "2026-08-07T08:30:46Z",
+  "scan_date": "2026-11-03T00:00:00Z",
   "scan_path": ".",
   "suggested_policies": [],
-  "suggested_suppressions": []
+  "suggested_suppressions": [],
+  "category": "all"
 }

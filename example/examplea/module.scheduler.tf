@@ -27,6 +27,11 @@ resource "google_cloud_run_v2_service" "target" {
     service_account = google_service_account.run_runtime.email
     timeout         = "300s"
 
+    scaling {
+      min_instance_count = 0
+      max_instance_count = 1
+    }
+
     containers {
       image = "gcr.io/cloudrun/hello:1.0.0"
 
@@ -56,15 +61,12 @@ resource "google_cloud_run_v2_service_iam_member" "scheduler_invoke" {
   member   = "serviceAccount:${google_service_account.scheduler_invoker.email}"
 }
 
-locals {
-  job_name = "holden-test-job"
-}
 
 # holden:ignore:HLD_TF_026 — examples intentionally use ../../ to reference the local module root
 # holden:ignore:HLD_TF_065: this repo exists to exercise holden's scheduler policies, so a single-resource wrapper module is the point, not an accident
 module "scheduler" {
   source                = "../../"
-  job_name              = local.job_name
+  job_name              = var.job_name
   schedule              = "0 */6 * * *"
   uri                   = google_cloud_run_v2_service.target.uri
   service_account_email = google_service_account.scheduler_invoker.email
